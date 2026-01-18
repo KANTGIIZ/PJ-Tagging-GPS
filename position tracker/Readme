@@ -1,0 +1,107 @@
+last file update 
+-server-service-v1.py
+
+
+
+// tracker.js (Map Page)
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("Tracker JS Loaded ✅");
+
+  // -----------------------------
+  // แผนที่
+  // -----------------------------
+  const map = L.map("map").setView([13.736717, 100.523186], 12);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors",
+  }).addTo(map);
+
+  const markers = {};
+  const polyline = L.polyline([], { color: "red" }).addTo(map);
+
+  let polylineEnabled = true;
+  let geocodeEnabled = true;
+
+  document.getElementById("togglePolyline")?.addEventListener("change", e => {
+    polylineEnabled = e.target.checked;
+    if (!polylineEnabled) polyline.setLatLngs([]);
+  });
+
+  document.getElementById("toggleGeocode")?.addEventListener("change", e => {
+    geocodeEnabled = e.target.checked;
+  });
+
+  // -----------------------------
+  // Helper fetch
+  // -----------------------------
+  async function fetchJSON(url, options = {}) {
+    const resp = await fetch(url, options);
+    return await resp.json();
+  }
+
+  // -----------------------------
+  // ดึงสถานะ device
+  // -----------------------------
+  async function fetchStatus() {
+    try {
+      const data = await fetchJSON("/status");
+
+      if (data.connected && data.device) {
+        const d = data.device;
+
+        // Update Map
+        const latlng = [d.latitude, d.longitude];
+        if (!markers[d.name]) {
+          markers[d.name] = L.marker(latlng)
+            .addTo(map)
+            .bindPopup(`📍 ${d.name}<br>${d.address || ""}`);
+        } else {
+          markers[d.name].setLatLng(latlng);
+          markers[d.name].getPopup().setContent(`📍 ${d.name}<br>${d.address || ""}`);
+        }
+
+        // Update polyline
+        if (polylineEnabled) {
+          const latlngs = polyline.getLatLngs();
+          latlngs.push(latlng);
+          polyline.setLatLngs(latlngs);
+        }
+
+        // Update Table
+        const tbody = document.querySelector("#statusTable tbody");
+        if (tbody) {
+          tbody.innerHTML = `
+            <tr>
+              <td>${d.name}</td>
+              <td>${d.latitude.toFixed(6)}, ${d.longitude.toFixed(6)}</td>
+              <td>${d.address || "-"}</td>
+            </tr>`;
+        }
+      } else {
+        console.log("Device not connected yet");
+      }
+    } catch (err) {
+      console.error("Error fetching status:", err);
+    }
+  }
+
+  // -----------------------------
+  // Check Geocoding service
+  // -----------------------------
+  async function checkGeocode() {
+    const geocodeStatus = document.getElementById("geocodeStatus");
+    try {
+      const data = await fetchJSON("/check_geocoding");
+      geocodeStatus.textContent = data.status === "ok" ? "✅ Geocoding OK" : "❌ Service Down";
+    } catch (err) {
+      console.error("Error checking geocode:", err);
+      if (geocodeStatus) geocodeStatus.textContent = "❌ Service Down";
+    }
+  }
+
+  // -----------------------------
+  // Loop
+  // -----------------------------
+  fetchStatus();
+  checkGeocode();
+  setInterval(fetchStatus, 5000);
+});

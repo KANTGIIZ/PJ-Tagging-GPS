@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GPS Tracker with Dashboard</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="{{ url_for('static', filename='js/tracker.js') }}" defer></script>
+</head>
+<body>
+    <div id="status">⏳ Waiting for Device...</div>
+    <div id="container">
+        <div id="map"></div>
+        <div id="sidebar">
+            <h3>Device Dashboard</h3>
+            <label class="switch">
+                <input type="checkbox" id="togglePolyline" checked>
+                <span class="slider"></span>
+              </label>
+              <span> Show Polyline marker</span>
+              
+            <hr>
+            <h3>Travel Log</h3>
+            <div id="logs"></div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/tracker.js') }}"></script>
+</body>
+</html>

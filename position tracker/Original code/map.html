@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GPS Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h2>GPS Tracker</h2>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    <div class="container">
+        <div id="map"></div>
+        <div class="sidebar">
+            <h3>Status: <span id="status">Loading...</span></h3>
+            <h3>Logs</h3>
+            <ul id="logs"></ul>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/tracker.js') }}"></script>
+</body>
+</html>
